@@ -3,11 +3,11 @@ import {Download,Sparkles,RotateCcw,Pencil,ShieldCheck,AlertTriangle,Square} fro
 type St='idle'|'downloading'|'loading'|'generating'|'done'|'error';
 const EX=['A lighthouse on a cliff at dawn, soft watercolor, pale pink sky','A cozy reading nook with a sleeping cat and rain on the window, warm lamp light','A paper-cut mountain landscape in indigo and cream, layered depth'];
 const mb=(b:number)=>(b/1048576).toFixed(0)+' MB';
-function AdSlot(){const pub=import.meta.env.VITE_ADSENSE_PUBLISHER,slot=import.meta.env.VITE_ADSENSE_SLOT;const ok=pub&&slot;
- useEffect(()=>{if(!ok)return;const s=document.createElement('script');s.async=true;s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+pub;document.head.appendChild(s);
-  s.onload=()=>{try{((window as any).adsbygoogle=(window as any).adsbygoogle||[]).push({})}catch{}}},[ok,pub]);
- return ok?<ins className="adsbygoogle block my-8" data-ad-client={pub} data-ad-slot={slot} data-ad-format="auto"/>:<div className="ui my-8 text-xs text-center border border-dashed rounded-xl p-6" style={{borderColor:'var(--line)',color:'var(--mut)'}}>Ad placeholder (ads not configured)</div>}
-export default function App(){
+function AdSlot(){const pub=import.meta.env.VITE_ADSENSE_PUBLISHER,slot=import.meta.env.VITE_ADSENSE_SLOT;const ok=Boolean(pub&&slot);
+ useEffect(()=>{if(!ok)return;const selector='script[data-prismlet-ads]';let s=document.querySelector(selector) as HTMLScriptElement|null;if(!s){s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';s.dataset.prismletAds='true';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+pub;document.head.appendChild(s)}
+  const push=()=>{try{((window as any).adsbygoogle=(window as any).adsbygoogle||[]).push({})}catch{}};s.addEventListener('load',push,{once:true});if((window as any).adsbygoogle)push();return()=>s?.removeEventListener('load',push)},[ok,pub]);
+ return ok?<ins className="adsbygoogle block my-8" data-ad-client={pub} data-ad-slot={slot} data-ad-format="auto" data-full-width-responsive="true"/>:import.meta.env.DEV?<div className="ui my-8 text-xs text-center border border-dashed rounded-xl p-6" style={{borderColor:'var(--line)',color:'var(--mut)'}}>Ad space — disabled until configured</div>:null}
+function Generator(){
  const [gpu,setGpu]=useState<'checking'|'ok'|string>('checking');
  const [prompt,setPrompt]=useState('');const [st,setSt]=useState<St>('idle');
  const [dl,setDl]=useState<[number,number]>([0,0]);const [gen,setGen]=useState<[number,number]>([0,0]);
@@ -29,14 +29,14 @@ export default function App(){
   setSt('downloading');(w.current??spawn()).postMessage({type:'generate',prompt:cur.current})};
  const stop=()=>{w.current?.terminate();w.current=null;setSt('idle')};
  const busy=['downloading','loading','generating'].includes(st);
- const save=()=>{if(!img)return;const a=document.createElement('a');a.href=img.url;a.download=(img.prompt.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40)||'image')+'.png';a.click()};
+ const save=()=>{if(!img)return;const a=document.createElement('a');a.href=img.url;a.download=(img.prompt.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40)||'image')+'.png';a.style.display='none';document.body.appendChild(a);a.click();a.remove()};
  const label={downloading:'Downloading model'+(dl[1]?` — ${mb(dl[0])} / ${mb(dl[1])}`:'…'),loading:'Loading model onto your GPU (compiling)…',generating:gen[1]?`Generating — step ${gen[0]} of ${gen[1]}`:'Starting generation…'} as Record<string,string>;
  const pct=st==='downloading'&&dl[1]?dl[0]/dl[1]*100:st==='generating'&&gen[1]?gen[0]/gen[1]*100:null;
  const Sec=({id,t,children}:{id?:string;t:string;children:any})=><section id={id} className="max-w-3xl mx-auto px-5 py-10"><h2 className="text-3xl mb-3">{t}</h2><div className="ui leading-relaxed space-y-3" style={{color:'var(--mut)'}}>{children}</div></section>;
  return<div>
  <nav className="ui sticky top-0 z-10 flex items-center justify-between px-5 h-14 backdrop-blur" style={{background:'color-mix(in srgb,var(--bg) 85%,transparent)',borderBottom:'1px solid var(--line)'}}>
   <a href="#" className="font-bold flex items-center gap-2"><img src="/favicon.svg" width="24" height="24" alt=""/>Prismlet</a>
-  <div className="flex gap-4 text-sm"><a href="#how">How it works</a><a href="#faq">FAQ</a><a href="#privacy">Privacy</a></div></nav>
+  <div className="flex gap-4 text-sm"><a href="#how">How it works</a><a href="#faq">FAQ</a><a href="/privacy">Privacy</a></div></nav>
  <header className="max-w-3xl mx-auto px-5 pt-14 pb-6"><h1 className="text-4xl sm:text-6xl leading-tight">Imagine it. Generate it. <span style={{color:'var(--ac)'}}>Keep it private.</span></h1>
   <p className="ui mt-4 text-lg" style={{color:'var(--mut)'}}>Create images from a text prompt using your own device. No account and no image-generation API.</p></header>
  <main className="max-w-3xl mx-auto px-5 ui">
@@ -66,4 +66,12 @@ export default function App(){
  <div className="max-w-3xl mx-auto px-5"><AdSlot/></div>
  <Sec id="privacy" t="Privacy Policy"><p>Prompts and images stay in your browser and are never uploaded. There is no account. Your browser requests this site, model files (Hugging Face) and, if configured, ads (which receive no prompts or images). No analytics are included by default. Model files are cached in browser storage; clear site data to remove them.</p></Sec>
  <Sec id="terms" t="Terms of Use"><p>Don’t generate unlawful content, or content prohibited by the DeepSeek Model License Attachment A (e.g. harassment, deception, harm to minors). You are responsible for outputs. The app cannot reliably filter unsafe prompts. Model: Janus-Pro-1B by DeepSeek, ONNX weights by onnx-community, run with Transformers.js.</p></Sec>
- <footer className="ui text-center text-sm py-10" style={{color:'var(--mut)'}}>© Prismlet · a Time Fusions mini app</footer></div>}
+ <footer className="ui text-center text-sm py-10" style={{color:'var(--mut)'}}>© Prismlet · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="/contact">Contact</a></footer></div>}
+
+const legalCopy={
+ privacy:{title:'Privacy Policy',body:<><p>Prismlet generates images locally in your browser. Prompts and generated images are not uploaded to an image-generation server and no account is required.</p><p>Your browser still connects to this website and to Hugging Face to download model files. Model files may be cached in browser storage; clear this site’s data in your browser settings to remove them.</p><p>If advertising is enabled later, advertising providers may use cookies or device identifiers to measure and personalise ads according to their own policies. Ads do not receive your prompts or generated images from Prismlet.</p></>},
+ terms:{title:'Terms of Use',body:<><p>Use Prismlet only for lawful purposes. Do not generate content that harms people, exploits minors, deceives others, or violates applicable laws or the model licence.</p><p>You are responsible for your prompts, downloads, and use of generated output. The service is provided as-is and may not be available on every browser or device.</p><p>Prismlet uses Janus-Pro-1B model weights made available by DeepSeek and onnx-community through Transformers.js. Review the applicable model licence before commercial use.</p></>},
+ contact:{title:'Contact',body:<><p>For feedback, accessibility concerns, or support, open an issue in the project’s GitHub repository.</p><p><a className="underline" href="https://github.com/timefusionsidk/prismlet/issues" target="_blank" rel="noreferrer">Contact Prismlet on GitHub</a></p></>}
+};
+function LegalPage({page}:{page:keyof typeof legalCopy}){const c=legalCopy[page];return <div className="min-h-screen"><nav className="ui flex items-center px-5 h-14" style={{borderBottom:'1px solid var(--line)'}}><a href="/" className="font-bold flex items-center gap-2"><img src="/favicon.svg" width="24" height="24" alt=""/>Prismlet</a></nav><main className="max-w-3xl mx-auto px-5 py-14"><h1 className="text-4xl mb-5">{c.title}</h1><div className="ui card p-6 leading-relaxed space-y-4" style={{color:'var(--mut)'}}>{c.body}</div></main></div>}
+export default function App(){const page=location.pathname.replace(/^\//,'').replace(/\/$/,'');return page==='privacy'||page==='terms'||page==='contact'?<LegalPage page={page}/>:<Generator/>}
