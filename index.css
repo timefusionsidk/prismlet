@@ -1,0 +1,10 @@
+@import "tailwindcss";
+:root{--bg:#faf8f5;--fg:#1f1f24;--mut:#6b6b76;--ac:#4f46e5;--line:#e6e2da;--card:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#141418;--fg:#f1f0ee;--mut:#a1a1ab;--ac:#8b85ff;--line:#2b2b33;--card:#1b1b21}}
+body{background:var(--bg);color:var(--fg);font-family:Georgia,'Iowan Old Style',serif;margin:0}
+.ui{font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 1px 12px rgb(0 0 0/.04)}
+.btn{background:var(--ac);color:#fff;border-radius:10px;padding:.7rem 1.1rem;font-weight:600;display:inline-flex;gap:.5rem;align-items:center;min-height:44px}
+.btn:disabled{opacity:.5;cursor:not-allowed}.btn2{border:1px solid var(--line);background:var(--card)}
+:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}

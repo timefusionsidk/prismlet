@@ -1,1 +1,6 @@
-# prismlet
+# Prismlet — in-browser AI image generator
+Runtime: Transformers.js (`@huggingface/transformers`) on WebGPU, in a Web Worker (`src/worker.ts`).
+Model: `onnx-community/Janus-Pro-1B-ONNX` (ONNX port of `deepseek-ai/Janus-Pro-1B`), fixed 384×384, no seed/size controls.
+**Licence — verify before launch:** the ONNX repo is tagged MIT on Hugging Face, but DeepSeek states code is MIT while *model use is subject to the DeepSeek Model/License Agreement* (royalty-free, commercial use allowed, use-based restrictions in Attachment A must be passed to users — see Terms). Read the current text: https://github.com/deepseek-ai/Janus/blob/main/LICENSE-MODEL
+Weights: fetched by the visitor's browser directly from huggingface.co (CORS-enabled), cached by Transformers.js in the Cache API. Size ≈ 1–2 GB (confirm from the live progress bar; unverified). Hugging Face bandwidth/rate limits apply; to self-host, set `env.remoteHost` in the worker and serve with CORS.
+Setup: `npm i && npm run dev`; `npm run build`; deploy `dist` on Vercel (`vercel.json` included). Ads: set `VITE_ADSENSE_PUBLISHER`/`VITE_ADSENSE_SLOT`; otherwise placeholders show. Replace `your-domain.example` in `index.html`, `robots.txt`, `sitemap.xml`.
